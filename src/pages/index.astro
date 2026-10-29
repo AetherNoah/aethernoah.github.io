@@ -1,0 +1,71 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PublicationRow from '../components/PublicationRow.astro';
+import {site} from '../data/site';
+import {experienceGroups} from '../data/experience';
+import {getCollection} from 'astro:content';
+
+const recent=(await getCollection('recent',({data})=>!data.draft)).sort((a,b)=>a.data.order-b.data.order).slice(0,3);
+const publications=(await getCollection('research',({data})=>!data.draft&&data.kind==='Publications')).sort((a,b)=>b.data.year-a.data.year);
+const projects=(await getCollection('projects',({data})=>!data.draft)).sort((a,b)=>b.data.year-a.data.year).slice(0,3);
+const experience=(await getCollection('experience',({data})=>!data.draft&&data.featured)).sort((a,b)=>b.data.startDate.localeCompare(a.data.startDate));
+const fragments=(await getCollection('fragments',({data})=>!data.draft)).sort((a,b)=>a.data.order-b.data.order||(b.data.date?.valueOf()??0)-(a.data.date?.valueOf()??0)).slice(0,3);
+const month=new Intl.DateTimeFormat('en',{month:'short',year:'numeric',timeZone:'UTC'});
+---
+<Layout>
+  <section class="home-hero">
+    <div class="hero-identity">
+      <p class="hero-kicker">COMPUTER SCIENCE · HUST</p>
+      <h1>Haoran Qian <span lang="zh-CN">钱皓冉</span></h1>
+      <p class="hero-line">Learning to model the world,<br/>one question at a time.</p>
+      <p class="hero-fields">World Models · Generative Models · Video Generation<br/>Multimodal Learning · Embodied Intelligence</p>
+      <div class="hero-links"><a href={`mailto:${site.email}`}>Email ↗</a><a href={site.github}>GitHub ↗</a>{site.scholar&&<a href={site.scholar}>Google Scholar ↗</a>}<a href={site.cv||'/cv/'}>CV ↗</a></div>
+    </div>
+    <figure class="hero-polaroid-wrap">
+      <span class="polaroid-tape" aria-hidden="true"></span>
+      <div class="polaroid-shell">
+        {site.heroPhotograph.image
+          ? <img class="polaroid-photo" src={site.heroPhotograph.image} alt={site.heroPhotograph.alt} width="1200" height="899" fetchpriority="high"/>
+          : <div class="polaroid-placeholder" role="img" aria-label="Space reserved for a personal photograph from Haoran's life">
+              <span>AN IMAGE TO KEEP</span>
+              <p>candid / campus / somewhere familiar</p>
+              <small>personal photograph goes here</small>
+            </div>}
+        <figcaption>{site.heroPhotograph.caption||'A photograph from your life, when ready.'}</figcaption>
+      </div>
+      <p class="polaroid-note" lang="zh-CN"><span aria-hidden="true">↳</span> 日子很慢，快门很轻。</p>
+    </figure>
+    <aside class="hero-marginalia" aria-label="Current status"><span class="margin-rule"></span><p>Wuhan, China<br/>Computer Science undergraduate<br/><time datetime="2026-09">Autumn 2026</time></p></aside>
+  </section>
+
+  <section class="recently" aria-labelledby="recently-title">
+    <div class="recently-heading"><span>UPDATES</span><h2 id="recently-title">News</h2><p>Milestones from research, study, and the everyday.</p></div>
+    <div class="recently-list">
+      {recent.map(item=><article>{item.data.date?<time datetime={item.data.date.toISOString().slice(0,7)}>{item.data.label??month.format(item.data.date)}</time>:<span class="news-date">{item.data.label??'—'}</span>}<div><h3>{item.data.title}</h3><p>{item.data.description}</p></div></article>)}
+    </div>
+  </section>
+
+  <section class="home-section publications-home" aria-labelledby="publications-title">
+    <header class="home-section-head"><div><span>01 /</span><h2 id="publications-title">Publications</h2></div><a href="/publications/">All publications ↗</a></header>
+    <div class="publication-list">{publications.map(entry=><PublicationRow entry={entry}/>)}</div>
+  </section>
+
+  <section class="home-section projects-home" aria-labelledby="projects-title">
+    <header class="home-section-head"><div><span>02 /</span><h2 id="projects-title">Projects</h2></div><a href="/projects/">Project index ↗</a></header>
+    <div class="project-intro"><p class="project-hand">Things made to understand things.</p><p>Implementations, evaluation tools, reproductions, and side projects—documented through the artifacts they produce.</p></div>
+    {projects.length>0?<div class={`project-spread ${projects.length===1?'single':''}`}>{projects.map((item,i)=><a class={`project-piece piece-${i+1}`} href={item.data.links[0]?.url??'/projects/'}>{item.data.image&&<figure class="project-figure"><img src={item.data.image} alt={item.data.imageAlt??`${item.data.title} project preview`} loading="lazy"/>{item.data.imageCaption&&<figcaption>{item.data.imageCaption}</figcaption>}</figure>}<div class="project-piece-copy"><span>{item.data.category} · {item.data.year}</span><h3>{item.data.title}</h3><p>{item.data.description}</p><b>Open project ↗</b></div></a>)}</div>:<p class="projects-pending">Selected projects will be added here.</p>}
+  </section>
+
+  <section class="home-section experience-home" aria-labelledby="experience-title">
+    <header class="home-section-head"><div><span>03 /</span><h2 id="experience-title">Experience</h2></div><a href="/experience/">Selected record ↗</a></header>
+    {experienceGroups.map(group=>{const items=experience.filter(item=>item.data.type===group.type);return items.length>0&&<section class="experience-group" aria-label={group.title}>
+      <h3 class="experience-group-title">{group.title}</h3>
+      <div class="experience-strip">{items.map(item=><article><div class="experience-date">{item.data.startDate}</div><div class="institution-mark">{item.data.logo?<img src={item.data.logo} alt={`${item.data.organization} emblem`}/>:<span aria-hidden="true">{item.data.organization.split(' ').map(word=>word[0]).join('').slice(0,4)}</span>}</div><div class="experience-main"><p>{item.data.location}</p><h3>{item.data.role}</h3><h4>{item.data.organization}</h4><p>{item.data.advisorName?<>Advised by <a class="advisor-link" href={item.data.advisorUrl}>{item.data.advisorName}</a>.</>:item.data.description}</p></div><div class="experience-side">{item.data.tags.map(tag=><span>{tag}</span>)}</div></article>)}</div>
+    </section>})}
+  </section>
+
+  <section class="home-section fragments-home" aria-labelledby="fragments-title">
+    <header class="fragments-head" lang="zh-CN"><div><span>04 /</span><h2 id="fragments-title" lang="en">Fragments</h2></div><p>把走过的风景，<br/>折成日子里的一页。</p><a href="/fragments/" lang="en">Enter the archive ↗</a></header>
+    <div class="fragment-spread" lang="zh-CN">{fragments.map((item,i)=><a class={`fragment-piece fragment-piece-${i+1}`} href={`/fragments/${item.id}/`}><div class="fragment-image"><img src={item.data.image} alt={item.data.alt} width={item.data.width} height={item.data.height} loading="lazy"/>{i===1&&<span class="photo-tape" aria-hidden="true"></span>}</div><div><h3>{item.data.title}</h3><p class="fragment-place" lang="en">{item.data.place}{item.data.date&&` · ${item.data.date.getUTCFullYear()}`}</p><p class="fragment-verse">{item.data.verse}</p></div></a>)}<p class="fragment-note">光阴不说话，<br/>有些片刻，替我们记得。</p></div>
+  </section>
+</Layout>

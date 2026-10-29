@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aethernoah.github.io/sitemap-index.xml

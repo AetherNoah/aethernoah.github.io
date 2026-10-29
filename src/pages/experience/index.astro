@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {getCollection,render} from 'astro:content';
+import {experienceGroups} from '../../data/experience';
+const entries=(await getCollection('experience',({data})=>!data.draft)).sort((a,b)=>b.data.startDate.localeCompare(a.data.startDate));
+---
+<Layout title="Experience" description="Selected academic, research, and industry experience from Haoran Qian.">
+  <header class="page-head experience-head">
+    <p class="eyebrow">03 / EXPERIENCE</p>
+    <h1>Places where ideas<br/>meet the world.</h1>
+    <p>A selective record of where I have studied, worked, and learned.</p>
+  </header>
+  <div class="experience-page page-content">
+    {experienceGroups.map(group=>{const items=entries.filter(entry=>entry.data.type===group.type);return items.length>0&&<section class="experience-group" aria-label={group.title}>
+    <h2 class="experience-group-title">{group.title}</h2>
+    {items.map(async entry=>{const {Content}=await render(entry);return <article class="experience-entry">
+      <div class="experience-year">{entry.data.startDate}</div>
+      <div class="institution-mark">{entry.data.logo?<img src={entry.data.logo} alt={`${entry.data.organization} emblem`}/>:<span aria-hidden="true">{entry.data.organization.split(' ').map(w=>w[0]).join('').slice(0,4)}</span>}</div>
+      <div class="experience-copy">
+        <p class="experience-type">{entry.data.location}</p>
+        <h2>{entry.data.role}</h2>
+        <h3>{entry.data.organization}</h3>
+        <div class="experience-description"><Content/></div>
+        <p class="experience-tags">{entry.data.tags.join(' · ')}</p>
+      </div>
+    </article>})}
+    </section>})}
+  </div>
+</Layout>

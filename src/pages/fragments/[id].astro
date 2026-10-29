@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {getCollection,render} from 'astro:content';
+export async function getStaticPaths(){return (await getCollection('fragments',({data})=>!data.draft)).map(entry=>({params:{id:entry.id},props:{entry}}))}
+const {entry}=Astro.props;const {Content}=await render(entry);
+---
+<Layout title={entry.data.title} description={entry.data.description} image={entry.data.image}>
+  <header class="page-head" lang="zh-CN"><a class="eyebrow" href="/fragments/" lang="en">04 / BACK TO FRAGMENTS</a><h1>{entry.data.title}</h1><p lang="en">{entry.data.place}{entry.data.date&&` · ${entry.data.date.getUTCFullYear()}`}</p></header>
+  <figure class="fragment-cover" lang="zh-CN"><img src={entry.data.image} alt={entry.data.alt} width={entry.data.width} height={entry.data.height}/><figcaption lang="en">{entry.data.creditUrl?<a href={entry.data.creditUrl}>{entry.data.credit} ↗</a>:entry.data.credit}</figcaption></figure>
+  {entry.data.photos.map(photo=><figure class="fragment-cover"><img src={photo.src} alt={photo.alt} loading="lazy"/>{photo.caption&&<figcaption>{photo.caption}</figcaption>}</figure>)}
+  <article class="prose fragment-prose" lang="zh-CN">{entry.data.sample&&<div class="sample-label">排版示例</div>}<Content/></article>
+</Layout>

@@ -1,0 +1,20 @@
+---
+import '../styles/global.css';
+import {site} from '../data/site';
+import '@fontsource/eb-garamond/latin-400.css';
+import '@fontsource/eb-garamond/latin-400-italic.css';
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
+import 'katex/dist/katex.min.css';
+interface Props {title?:string; description?:string; image?:string}
+const {title,description='Haoran Qian / 钱皓冉. Computer Science at HUST. Research on world models, generative models, and multimodal learning. Notes and fragments of everyday life.',image}=Astro.props;
+const path=Astro.url.pathname;
+const nav=[['Publications','/publications/'],['Projects','/projects/'],['Experience','/experience/'],['Fragments','/fragments/'],['About','/about/'],['CV',site.cv||'/cv/']];
+const fullTitle=title?`${title} — Haoran Qian`:'Haoran Qian — Research & fragments';
+---
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="theme-color" content="#F5F2EA"/><title>{fullTitle}</title><meta name="description" content={description}/><link rel="canonical" href={new URL(path,Astro.site)}/><meta property="og:type" content="website"/><meta property="og:title" content={fullTitle}/><meta property="og:description" content={description}/><meta property="og:url" content={new URL(path,Astro.site)}/>{image&&<meta property="og:image" content={new URL(image,Astro.site)}/>}<meta name="twitter:card" content={image?'summary_large_image':'summary'}/><link rel="icon" type="image/png" sizes="48x48" href="/favicon.png"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/><link rel="alternate" type="application/rss+xml" title="Haoran Qian — Notes" href="/rss.xml"/></head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="header wrap"><a class="wordmark" href="/" aria-label="Haoran Qian home"><img src="/images/github-avatar.webp" alt="" width="32" height="32"/>haoran<span>.</span></a><nav class="desktop-nav" aria-label="Main navigation">{nav.map(([label,href])=><a href={href} aria-current={path===href?'page':undefined}>{label}</a>)}</nav><details class="mobile-menu"><summary>Menu <span>+</span></summary><nav aria-label="Mobile navigation">{nav.map(([label,href])=><a href={href} aria-current={path===href?'page':undefined}>{label}</a>)}</nav></details></header>
+<main id="main" class="wrap"><slot/></main>
+<footer class="footer wrap"><span>© 2026 Haoran Qian</span><p>Some things are worth publishing.<br/>Some are simply worth remembering.</p><a href={`mailto:${'hrqian06@gmail.com'}`}>Email ↗</a></footer>
+</body></html>

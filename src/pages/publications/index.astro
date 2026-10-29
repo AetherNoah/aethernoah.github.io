@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PublicationRow from '../../components/PublicationRow.astro';
+import {getCollection} from 'astro:content';
+const papers=(await getCollection('research',({data})=>!data.draft&&data.kind==='Publications')).sort((a,b)=>b.data.year-a.data.year);
+---
+<Layout title="Publications" description="Publications and manuscripts by Haoran Qian, including DreamTamer, submitted to ICLR 2027.">
+  <header class="page-head publications-head"><p class="eyebrow">01 / PUBLICATIONS</p><h1>Publications</h1><p>Selected papers and manuscripts.</p></header>
+  <section class="publications-page page-content" aria-label="Publication list">
+    <p class="publication-count">{papers.length} {papers.length===1?'manuscript':'manuscripts'}</p>
+    <div class="publication-list">{papers.map(entry=><PublicationRow entry={entry}/>)}</div>
+  </section>
+</Layout>

@@ -1,0 +1,17 @@
+---
+import type {CollectionEntry} from 'astro:content';
+import {site} from '../data/site';
+interface Props {entry:CollectionEntry<'research'>}
+const {entry}=Astro.props;
+const paper=entry.data;
+---
+<article class="publication-row">
+  {paper.image&&<figure class="publication-teaser"><a href={paper.image} target="_blank" rel="noreferrer" aria-label={`View full figure for ${paper.title}`}><img src={paper.image} alt={`${paper.title} method overview`} width="954" height="358" loading="lazy"/></a></figure>}
+  <div class="publication-details">
+    <h3>{paper.title}</h3>
+    <p class="publication-authors">{paper.authors.map((author,i)=><>{author===site.name?<strong class="publication-self">{author}</strong>:<span>{author}</span>}{i<paper.authors.length-1?', ':'.'}</>)}</p>
+    <p class="publication-description">{paper.description}</p>
+    <p class="publication-venue">{paper.venue} <span>({paper.status})</span></p>
+    {paper.links.length>0&&<div class="publication-links">{paper.links.map(link=><a href={link.url}>{link.label} ↗</a>)}</div>}
+  </div>
+</article>

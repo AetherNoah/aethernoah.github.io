@@ -1,0 +1,7 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {getCollection,render} from 'astro:content';
+export async function getStaticPaths(){const research=await getCollection('research',({data})=>!data.draft);const projects=await getCollection('projects',({data})=>!data.draft);return [...research,...projects].map(entry=>({params:{collection:entry.collection,id:entry.id},props:{entry}}))}
+const {entry}=Astro.props;const {Content}=await render(entry);
+---
+<Layout title={entry.data.title} description={entry.data.description}><header class="page-head"><a class="eyebrow" href={`/${entry.collection}/`}>BACK TO {entry.collection.toUpperCase()}</a><h1>{entry.data.title}</h1><p>{entry.data.description}</p></header><article class="prose page-content"><Content/>{entry.data.links.map(l=><p><a href={l.url}>{l.label} ↗</a></p>)}</article></Layout>

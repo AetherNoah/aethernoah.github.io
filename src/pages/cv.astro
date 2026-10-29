@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import {site} from '../data/site';
+---
+<Layout title="CV" description="Haoran Qian’s research CV. Read online or download the English PDF.">
+  <header class="page-head"><p class="eyebrow">CURRICULUM VITAE</p><h1>Haoran Qian <span lang="zh-CN">/ 钱皓冉</span></h1><p>Research résumé · English PDF</p></header>
+  <section class="cv-document page-content" aria-label="Research CV">
+    <div class="cv-actions"><a href={site.cv} target="_blank" rel="noreferrer">Open PDF ↗</a><a href={site.cv} download="Haoran_Qian_Research_Resume_EN.pdf">Download PDF ↓</a></div>
+    <iframe class="cv-preview" src={site.cv} title="Haoran Qian’s research CV" loading="lazy"></iframe>
+  </section>
+</Layout>

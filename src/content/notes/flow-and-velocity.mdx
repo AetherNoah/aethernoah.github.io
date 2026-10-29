@@ -1,0 +1,67 @@
+---
+title: Understanding Flow-GRPO from the Velocity Field
+description: A sample notebook entry separating flow matching dynamics from reward-based policy optimization.
+date: 2026-09-23
+category: Generative models
+sample: true
+---
+
+The first useful distinction is between a model of motion through a probability distribution and the objective used to improve that model. A velocity field describes the former. A reward-based training procedure changes the latter.
+
+## Begin with a path
+
+Take a data sample $x_1$ and a noise sample $x_0$. A simple interpolation is
+
+$$
+x_t = (1-t)x_0 + tx_1, \qquad t \in [0,1].
+$$
+
+Along this conditional path, the target velocity is $x_1-x_0$. A flow-matching objective can therefore be written as
+
+$$
+\mathcal{L}_{\mathrm{FM}}(\theta)=\mathbb{E}_{t,x_0,x_1}\left[\left\|v_\theta(x_t,t)-(x_1-x_0)\right\|^2\right].
+$$
+
+This is a regression objective for a velocity field. It is not, by itself, a reward objective.[^path]
+
+<aside className="sidenote">Margin note — This interpolation runs from noise at t = 0 to data at t = 1. Some implementations reverse the time convention.</aside>
+
+## From a field to a sample
+
+Sampling approximately integrates $dx_t/dt=v_\theta(x_t,t)$. A minimal Euler update makes the role of the field concrete:
+
+```python
+def euler_step(x, t, dt, velocity_model):
+    velocity = velocity_model(x, t)
+    return x + dt * velocity
+```
+
+Reducing the step size changes numerical error. Changing the learned velocity changes the distribution we are trying to sample. These are different interventions.
+
+## Where the reward enters
+
+Group-relative optimization compares rewards within a group of generated samples. An illustrative normalized advantage is
+
+$$
+A_i = \frac{r_i-\operatorname{mean}(r)}{\operatorname{std}(r)+\epsilon}.
+$$
+
+The hard part is not computing this number. It is specifying a sampling process with a tractable policy likelihood, then relating that likelihood to the model’s parameters. A deterministic ODE update does not automatically provide a stochastic transition likelihood.
+
+> Keep the representation of the generator, the sampling process, and the optimization objective separate until their connection is explicit.
+
+## Questions to carry forward
+
+- Where does stochasticity enter the training sampler?
+- Which transition likelihood is used in the policy ratio?
+- What changes between training-time sampling and inference?
+- Which rewards favor visual quality, and which measure temporal consistency?
+
+This entry is a conceptual reading scaffold, rather than an implementation or a claim about a particular experiment.
+
+## References
+
+1. Lipman et al. [Flow Matching for Generative Modeling](https://arxiv.org/abs/2210.02747), 2022.
+2. Shao et al. [DeepSeekMath](https://arxiv.org/abs/2402.03300), 2024. See the discussion of group-relative policy optimization.
+
+[^path]: Different couplings and probability paths produce different conditional targets. The linear independent-endpoint example is only one choice.

@@ -1,0 +1,9 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {getCollection} from 'astro:content';
+const fragments=(await getCollection('fragments',({data})=>!data.draft)).sort((a,b)=>a.data.order-b.data.order||(b.data.date?.valueOf()??0)-(a.data.date?.valueOf()??0));
+---
+<Layout title="Fragments" description="武汉的窗边秋色，西湖的舟行晴光，南京的临水灯火。把走过的风景，折成日子里的一页。">
+  <header class="page-head" lang="zh-CN"><p class="eyebrow" lang="en">04 / THE PERSONAL ARCHIVE</p><h1 lang="en">Fragments</h1><p>把走过的风景，折成日子里的一页。</p></header>
+  <div class="photo-grid archive-grid" lang="zh-CN">{fragments.map((entry,i)=><a class={`photo-item photo-${i%3}`} href={`/fragments/${entry.id}/`}><img src={entry.data.image} alt={entry.data.alt} width={entry.data.width} height={entry.data.height} loading={i?'lazy':'eager'}/><div class="photo-caption"><h3>{entry.data.title}</h3><span lang="en">{entry.data.place}{entry.data.date&&` · ${entry.data.date.getUTCFullYear()}`}</span><p class="fragment-verse">{entry.data.verse}</p></div></a>)}</div>
+</Layout>

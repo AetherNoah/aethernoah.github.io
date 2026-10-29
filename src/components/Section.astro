@@ -1,0 +1,5 @@
+---
+interface Props {number:string;title:string;href?:string;link?:string}
+const {number,title,href,link='View all'}=Astro.props;
+---
+<section class="section"><div class="section-heading"><h2><span class="index">{number} /</span> {title}</h2>{href&&<a class="small-link" href={href}>{link} <span aria-hidden="true">↗</span></a>}</div><slot/></section>
